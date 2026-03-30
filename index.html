@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Figura Prima · Visualización Científica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white:  #FFFFFF;
+      --off:    #F7F6F4;
+      --ink:    #141414;
+      --mid:    #6B6B6B;
+      --accent: #1B3A5C;
+      --rule:   #E0DED9;
+      --serif:  'Cormorant Garamond', Georgia, serif;
+      --sans:   'Outfit', sans-serif;
+      --nav-h:  68px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--white);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ─────────────────────────── NAV ─────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--nav-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 4rem;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+    }
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 1.15rem; font-weight: 600;
+      letter-spacing: 0.02em; color: var(--ink); text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.75rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--mid);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* Hamburger */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      cursor: pointer; background: none; border: none; padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block; width: 24px; height: 1.5px;
+      background: var(--ink); transition: all 0.3s;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    /* Mobile menu */
+    .nav-mobile {
+      display: none;
+      position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 199;
+      background: var(--white);
+      border-bottom: 1px solid var(--rule);
+      flex-direction: column;
+      padding: 1.5rem 2rem;
+      gap: 1.2rem;
+    }
+    .nav-mobile.open { display: flex; }
+    .nav-mobile a {
+      font-size: 0.85rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--mid);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-mobile a:hover { color: var(--accent); }
+
+    /* ─────────────────────────── HERO ─────────────────────────── */
+    #inicio {
+      padding-top: var(--nav-h);
+    }
+
+    /* Hero text block */
+    .hero-text {
+      padding: 5rem 4rem 4rem;
+      max-width: 720px;
+    }
+    .hero-tag {
+      font-size: 0.72rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 300; line-height: 1.06;
+      letter-spacing: -0.01em; color: var(--ink);
+      margin-bottom: 1.8rem;
+    }
+    .hero-title em { font-style: italic; color: var(--accent); }
+    .hero-desc {
+      font-size: 0.95rem; color: var(--mid);
+      max-width: 500px; line-height: 1.9;
+      margin-bottom: 2.5rem;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 0.8rem;
+      font-size: 0.75rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--white);
+      background: var(--accent); padding: 0.9rem 2rem;
+      text-decoration: none; transition: opacity 0.2s;
+    }
+    .hero-cta:hover { opacity: 0.85; }
+
+    /* ─────────────────────────── CAROUSEL (full-width) ─────────────────────────── */
+    .carousel-wrap {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      min-height: 320px;
+      overflow: hidden;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .carousel-track {
+      display: flex; height: 100%;
+      transition: transform 0.75s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    .carousel-slide {
+      min-width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--off); position: relative; overflow: hidden;
+    }
+    .carousel-slide img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    /* Placeholder */
+    .c-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem;
+    }
+    .c-placeholder svg { opacity: 0.13; }
+    .c-placeholder span {
+      font-size: 0.68rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--mid); opacity: 0.5;
+    }
+    /* Label overlay */
+    .slide-label {
+      position: absolute; bottom: 2rem; left: 2.5rem;
+      display: flex; flex-direction: column; gap: 0.2rem;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(8px);
+      padding: 0.7rem 1.1rem;
+      border-left: 2px solid var(--accent);
+    }
+    .slide-type {
+      font-size: 0.6rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--accent);
+    }
+    .slide-name {
+      font-family: var(--serif); font-size: 1rem;
+      font-weight: 400; color: var(--ink);
+    }
+    /* Controls */
+    .carousel-controls {
+      position: absolute; bottom: 2rem; right: 2.5rem;
+      display: flex; gap: 0.5rem;
+    }
+    .c-btn {
+      width: 40px; height: 40px;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(6px);
+      cursor: pointer; font-size: 1rem; color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .c-btn:hover { background: var(--accent); color: var(--white); border-color: var(--accent); }
+    /* Dots */
+    .carousel-dots {
+      position: absolute; top: 1.5rem;
+      left: 50%; transform: translateX(-50%);
+      display: flex; gap: 0.5rem;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(27,58,92,0.25); cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .dot.active { background: var(--accent); transform: scale(1.35); }
+
+    /* ─────────────────────────── SECTIONS ─────────────────────────── */
+    section { padding: 6rem 4rem; }
+    .section-header {
+      display: flex; align-items: baseline; gap: 1.5rem; margin-bottom: 3.5rem;
+    }
+    .section-num { font-family: var(--serif); font-size: 0.9rem; color: var(--accent); font-weight: 300; }
+    .section-title { font-family: var(--serif); font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight: 300; letter-spacing: -0.01em; }
+    .section-rule { flex: 1; height: 1px; background: var(--rule); margin-left: 1rem; }
+
+    /* ─────────────────────────── SERVICIOS ─────────────────────────── */
+    #servicios { background: var(--white); }
+    .services-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--rule);
+    }
+    .service-card {
+      padding: 2.5rem 2rem; border-right: 1px solid var(--rule);
+      transition: background 0.25s;
+    }
+    .service-card:last-child { border-right: none; }
+    .service-card:hover { background: var(--off); }
+    .service-num {
+      font-family: var(--serif); font-size: 2.2rem; font-weight: 300;
+      color: var(--rule); display: block; margin-bottom: 1.2rem; line-height: 1;
+    }
+    .service-name { font-family: var(--serif); font-size: 1.25rem; font-weight: 400; margin-bottom: 0.8rem; color: var(--ink); }
+    .service-desc { font-size: 0.86rem; color: var(--mid); line-height: 1.8; }
+    .service-examples { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .tag { font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; border: 1px solid var(--rule); padding: 0.28rem 0.65rem; color: var(--mid); }
+
+    /* ─────────────────────────── PORTAFOLIO ─────────────────────────── */
+    #portafolio { background: var(--off); }
+    .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+    .gallery-item {
+      background: var(--white); border: 1px solid var(--rule);
+      overflow: hidden; cursor: pointer; transition: box-shadow 0.3s;
+    }
+    .gallery-item:hover { box-shadow: 0 8px 30px rgba(27,58,92,0.10); }
+    .gallery-thumb {
+      aspect-ratio: 4/3; overflow: hidden; background: var(--off);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gallery-thumb img { width: 100%; height: 100%; object-fit: contain; background: var(--white); transition: transform 0.5s; padding: 0.5rem; }
+    .gallery-item:hover .gallery-thumb img { transform: scale(1.05); }
+    .gallery-info { padding: 1rem 1.2rem; border-top: 1px solid var(--rule); }
+    .gallery-type { font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.3rem; }
+    .gallery-title { font-family: var(--serif); font-size: 1rem; font-weight: 400; color: var(--ink); }
+    .fig-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .fig-placeholder svg { width: 75%; height: 75%; opacity: 0.11; }
+
+    /* Lightbox */
+    #lightbox { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(15,15,15,0.93); align-items: center; justify-content: center; }
+    #lightbox.open { display: flex; }
+    #lightbox img { max-width: 90vw; max-height: 88vh; object-fit: contain; }
+    #lb-close { position: absolute; top: 1.2rem; right: 1.5rem; font-size: 1.8rem; color: #fff; background: none; border: none; cursor: pointer; opacity: 0.7; }
+    #lb-close:hover { opacity: 1; }
+
+    /* ─────────────────────────── COTIZACIÓN ─────────────────────────── */
+    #cotizacion { background: var(--white); }
+    .cot-layout {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: start;
+    }
+
+    /* Left: info + disclaimer */
+    .cot-info-title {
+      font-family: var(--serif); font-size: 1.4rem; font-weight: 300;
+      color: var(--ink); margin-bottom: 0.6rem;
+    }
+    .cot-info-body {
+      font-size: 0.88rem; color: var(--mid); line-height: 1.85;
+      margin-bottom: 2rem;
+    }
+    .cot-steps { display: flex; flex-direction: column; gap: 1.1rem; }
+    .cot-step {
+      display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .cot-step-num {
+      min-width: 28px; height: 28px;
+      border: 1px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 500; color: var(--accent);
+      letter-spacing: 0.05em; margin-top: 2px;
+    }
+    .cot-step-text strong { font-weight: 500; font-size: 0.88rem; color: var(--ink); display: block; margin-bottom: 0.1rem; }
+    .cot-step-text span { font-size: 0.82rem; color: var(--mid); }
+    .cot-disclaimer {
+      margin-top: 2.2rem; font-size: 0.76rem; color: var(--mid);
+      border-left: 2px solid var(--accent); padding-left: 1rem; line-height: 1.8;
+    }
+
+    /* Right: form */
+    .quote-panel { position: sticky; top: calc(var(--nav-h) + 1.5rem); }
+    .quote-panel-title { font-family: var(--serif); font-size: 1.55rem; font-weight: 300; margin-bottom: 0.4rem; }
+    .quote-panel-sub { font-size: 0.84rem; color: var(--mid); margin-bottom: 1.8rem; line-height: 1.75; }
+
+    .quote-form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.32rem; }
+    .form-label { font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid); }
+    .form-input, .form-select, .form-textarea {
+      background: var(--off); border: 1px solid var(--rule);
+      color: var(--ink); padding: 0.78rem 0.95rem;
+      font-family: var(--sans); font-size: 0.9rem; font-weight: 300;
+      outline: none; transition: border-color 0.2s, background 0.2s;
+      -webkit-appearance: none; border-radius: 0;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: #C0BEB9; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      background: var(--white); border-color: var(--accent);
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .form-textarea { resize: vertical; min-height: 100px; }
+
+    .radio-group { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .radio-opt { display: none; }
+    .radio-label {
+      font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+      border: 1px solid var(--rule); padding: 0.38rem 0.85rem;
+      cursor: pointer; color: var(--mid); transition: all 0.2s; user-select: none;
+    }
+    .radio-opt:checked + .radio-label { background: var(--accent); color: var(--white); border-color: var(--accent); }
+
+    .form-btn {
+      background: var(--accent); color: var(--white); border: none;
+      padding: 0.95rem 2rem; font-family: var(--sans); font-size: 0.75rem;
+      font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; transition: opacity 0.2s; align-self: flex-start; margin-top: 0.3rem;
+    }
+    .form-btn:hover { opacity: 0.85; }
+    .form-note { font-size: 0.72rem; color: var(--mid); margin-top: 0.4rem; }
+
+    /* ─────────────────────────── PROCESO ─────────────────────────── */
+    #proceso { background: var(--off); }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); position: relative;
+    }
+    .steps-grid::before {
+      content: ''; position: absolute; top: 5px; left: 6%; right: 6%;
+      height: 1px; background: var(--accent); opacity: 0.25;
+    }
+    .step { padding: 0 1.8rem 0 0; }
+    .step-dot { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--accent); background: var(--off); margin-bottom: 1.6rem; position: relative; z-index: 1; }
+    .step-num { font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+    .step-name { font-family: var(--serif); font-size: 1.1rem; font-weight: 400; margin-bottom: 0.7rem; color: var(--ink); }
+    .step-desc { font-size: 0.83rem; color: var(--mid); line-height: 1.8; }
+
+    /* ─────────────────────────── FOOTER ─────────────────────────── */
+    footer {
+      padding: 1.8rem 4rem;
+      border-top: 1px solid var(--rule);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-logo { font-family: var(--serif); font-size: 1rem; font-weight: 600; color: var(--ink); }
+    .footer-logo span { color: var(--accent); }
+    .footer-copy { font-size: 0.73rem; color: var(--mid); }
+
+    /* ─────────────────────────── ANIMATIONS ─────────────────────────── */
+    .fade-in { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .fade-in.visible { opacity: 1; transform: none; }
+
+    /* ─────────────────────────── RESPONSIVE ─────────────────────────── */
+
+    /* Tablet landscape & small desktop (≤ 1100px) */
+    @media (max-width: 1100px) {
+      .cot-layout { gap: 3rem; }
+      .quote-panel { position: static; }
+    }
+
+    /* Tablet portrait (≤ 860px) */
+    @media (max-width: 860px) {
+      nav { padding: 0 1.5rem; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+
+      .hero-text { padding: 3.5rem 1.5rem 3rem; }
+
+      .carousel-wrap { height: 55vw; min-height: 260px; }
+
+      section { padding: 4rem 1.5rem; }
+
+      .services-grid { grid-template-columns: 1fr; }
+      .service-card { border-right: none; border-bottom: 1px solid var(--rule); }
+      .service-card:last-child { border-bottom: none; }
+
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+
+      .cot-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+
+      .steps-grid { grid-template-columns: 1fr 1fr; gap: 2rem 1.5rem; }
+      .steps-grid::before { display: none; }
+
+      footer { padding: 1.5rem; flex-direction: column; gap: 0.4rem; text-align: center; }
+    }
+
+    /* Phone (≤ 540px) */
+    @media (max-width: 540px) {
+      .hero-title { font-size: clamp(2.4rem, 10vw, 3.4rem); }
+
+      .carousel-wrap { height: 62vw; min-height: 220px; }
+      .slide-label { left: 1rem; bottom: 1rem; padding: 0.5rem 0.8rem; }
+      .carousel-controls { right: 1rem; bottom: 1rem; }
+      .c-btn { width: 34px; height: 34px; font-size: 0.85rem; }
+
+      .gallery-grid { grid-template-columns: 1fr; }
+
+      .form-row { grid-template-columns: 1fr; }
+
+      .steps-grid { grid-template-columns: 1fr; }
+
+      section { padding: 3.5rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#inicio" class="nav-logo">Figura Prima<span>.</span></a>
+  <ul class="nav-links">
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#portafolio">Portafolio</a></li>
+    <li><a href="#cotizacion">Cotización</a></li>
+    <li><a href="#proceso">Proceso</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="nav-mobile" id="mobileMenu">
+  <a href="#servicios"  onclick="closeMobile()">Servicios</a>
+  <a href="#portafolio" onclick="closeMobile()">Portafolio</a>
+  <a href="#cotizacion" onclick="closeMobile()">Cotización</a>
+  <a href="#proceso"    onclick="closeMobile()">Proceso</a>
+</div>
+
+<!-- HERO TEXT -->
+<section id="inicio" style="padding-bottom:0;">
+  <div class="hero-text fade-in">
+    <p class="hero-tag">Visualización Científica · Universidad</p>
+    <h1 class="hero-title">Figuras que<br>comunican<br><em>ciencia.</em></h1>
+    <p class="hero-desc">
+      Transformo tus datos, conceptos y resultados de investigación en
+      figuras de alta calidad para publicaciones, tesis y presentaciones científicas.
+    </p>
+    <a href="#cotizacion" class="hero-cta">Solicitar cotización →</a>
+  </div>
+</section>
+
+<!-- CARRUSEL FULL-WIDTH -->
+<div class="carousel-wrap">
+  <div class="carousel-track" id="carouselTrack">
+
+    <!-- Slide 1 -->
+    <div class="carousel-slide">
+      <img src="Biosemiotics.png" alt="Biosemiotics" />
+      <div class="slide-label">
+        <span class="slide-type">Figura conceptual</span>
+        <span class="slide-name">Biosemiotics</span>
+      </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="carousel-slide">
+      <img src="CNIB22.png" alt="CNIB 2022" />
+      <div class="slide-label">
+        <span class="slide-type">Gráfica de datos</span>
+        <span class="slide-name">CNIB 2022</span>
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="carousel-slide">
+      <img src="CNIB25.png" alt="CNIB 2025" />
+      <div class="slide-label">
+        <span class="slide-type">Gráfica de datos</span>
+        <span class="slide-name">CNIB 2025</span>
+      </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="carousel-slide">
+      <img src="Elsevier25.PNG" alt="Elsevier 2025" />
+      <div class="slide-label">
+        <span class="slide-type">Figura científica</span>
+        <span class="slide-name">Elsevier 2025</span>
+      </div>
+    </div>
+
+  </div><!-- /track -->
+
+  <div class="carousel-dots" id="carouselDots"></div>
+
+  <div class="carousel-controls">
+    <button class="c-btn" id="cPrev">&#8592;</button>
+    <button class="c-btn" id="cNext">&#8594;</button>
+  </div>
+</div>
+
+<!-- SERVICIOS -->
+<section id="servicios">
+  <div class="section-header fade-in">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Servicios</h2>
+    <div class="section-rule"></div>
+  </div>
+  <div class="services-grid fade-in">
+    <div class="service-card">
+      <span class="service-num">01</span>
+      <h3 class="service-name">Figuras Conceptuales</h3>
+      <p class="service-desc">Ilustraciones científicas que comunican modelos, hipótesis y marcos teóricos de forma clara y atractiva para publicaciones y presentaciones.</p>
+      <div class="service-examples">
+        <span class="tag">Modelos teóricos</span>
+        <span class="tag">Esquemas de procesos</span>
+        <span class="tag">Infografías</span>
+        <span class="tag">Ilustraciones</span>
+      </div>
+    </div>
+    <div class="service-card">
+      <span class="service-num">02</span>
+      <h3 class="service-name">Diagramas</h3>
+      <p class="service-desc">Diagramas estructurales, de flujo y relacionales que representan metodologías, sistemas complejos y arquitecturas experimentales con precisión técnica.</p>
+      <div class="service-examples">
+        <span class="tag">Flujos de trabajo</span>
+        <span class="tag">Redes y grafos</span>
+        <span class="tag">Diagramas moleculares</span>
+        <span class="tag">Mapas conceptuales</span>
+      </div>
+    </div>
+    <div class="service-card">
+      <span class="service-num">03</span>
+      <h3 class="service-name">Gráficas de Datos</h3>
+      <p class="service-desc">Visualización de datos cuantitativos y cualitativos con estética de revista científica de alto impacto. Exportadas en alta resolución para publicación.</p>
+      <div class="service-examples">
+        <span class="tag">Dispersión · regresión</span>
+        <span class="tag">Heatmaps</span>
+        <span class="tag">Box plots</span>
+        <span class="tag">Series de tiempo</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTAFOLIO -->
+<section id="portafolio" style="background:var(--off)">
+  <div class="section-header fade-in">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Portafolio</h2>
+    <div class="section-rule"></div>
+  </div>
+  <div class="gallery-grid fade-in">
+    <div class="gallery-item" onclick="openLightbox(this)">
+      <div class="gallery-thumb"><img src="Biosemiotics.png" alt="Biosemiotics" /></div>
+      <div class="gallery-info"><p class="gallery-type">Figura Conceptual</p><p class="gallery-title">Biosemiotics</p></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(this)">
+      <div class="gallery-thumb"><img src="CNIB22.png" alt="CNIB 2022" /></div>
+      <div class="gallery-info"><p class="gallery-type">Gráfica de Datos</p><p class="gallery-title">CNIB 2022</p></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(this)">
+      <div class="gallery-thumb"><img src="CNIB25.png" alt="CNIB 2025" /></div>
+      <div class="gallery-info"><p class="gallery-type">Gráfica de Datos</p><p class="gallery-title">CNIB 2025</p></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(this)">
+      <div class="gallery-thumb"><img src="Elsevier25.PNG" alt="Elsevier 2025" /></div>
+      <div class="gallery-info"><p class="gallery-type">Figura Científica</p><p class="gallery-title">Elsevier 2025</p></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(this)">
+      <div class="gallery-thumb"><img src="EMBS23.png" alt="EMBS 2023" /></div>
+      <div class="gallery-info"><p class="gallery-type">Gráfica de Datos</p><p class="gallery-title">EMBS 2023</p></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(this)">
+      <div class="gallery-thumb"><img src="Frontiers25.png" alt="Frontiers 2025" /></div>
+      <div class="gallery-info"><p class="gallery-type">Figura Científica</p><p class="gallery-title">Frontiers 2025</p></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(this)">
+      <div class="gallery-thumb"><img src="IEEEEMBS25.png" alt="IEEE EMBS 2025" /></div>
+      <div class="gallery-info"><p class="gallery-type">Gráfica de Datos</p><p class="gallery-title">IEEE EMBS 2025</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- COTIZACIÓN + FORMULARIO -->
+<section id="cotizacion">
+  <div class="section-header fade-in">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Cotización</h2>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="cot-layout fade-in">
+
+    <!-- Info del proceso -->
+    <div>
+      <h3 class="cot-info-title">¿Cómo funciona?</h3>
+      <p class="cot-info-body">
+        Llena el formulario con los detalles de tu proyecto y te respondo con
+        un presupuesto personalizado. Cada figura se cotiza según su complejidad,
+        número de revisiones y urgencia.
+      </p>
+      <div class="cot-steps">
+        <div class="cot-step">
+          <div class="cot-step-num">01</div>
+          <div class="cot-step-text">
+            <strong>Comparte tu proyecto</strong>
+            <span>Tipo de figura, área de investigación y destino (artículo, tesis, congreso).</span>
+          </div>
+        </div>
+        <div class="cot-step">
+          <div class="cot-step-num">02</div>
+          <div class="cot-step-text">
+            <strong>Recibe tu cotización</strong>
+            <span>Te respondo en menos de 24 horas con un presupuesto detallado.</span>
+          </div>
+        </div>
+        <div class="cot-step">
+          <div class="cot-step-num">03</div>
+          <div class="cot-step-text">
+            <strong>Diseño + revisiones</strong>
+            <span>Incluye 2 rondas de retroalimentación para afinar la figura.</span>
+          </div>
+        </div>
+        <div class="cot-step">
+          <div class="cot-step-num">04</div>
+          <div class="cot-step-text">
+            <strong>Entrega en alta resolución</strong>
+            <span>PNG, PDF vectorial y/o SVG a 300 dpi, listos para publicación.</span>
+          </div>
+        </div>
+      </div>
+      <p class="cot-disclaimer">
+        Sin compromiso hasta tu aprobación.<br>
+        Primer pago al inicio · Saldo contra entrega.
+      </p>
+    </div>
+
+    <!-- Formulario -->
+    <div class="quote-panel">
+      <h3 class="quote-panel-title">Solicita tu cotización</h3>
+      <p class="quote-panel-sub">Te respondo en menos de 24 horas hábiles con un presupuesto personalizado.</p>
+
+      <!-- Reemplaza TU_ID con tu endpoint de Formspree -->
+      <form class="quote-form" action="https://formspree.io/f/TU_ID" method="POST">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="nombre">Nombre</label>
+            <input class="form-input" type="text" id="nombre" name="nombre" placeholder="Dr. / Dra. Apellido" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Correo</label>
+            <input class="form-input" type="email" id="email" name="email" placeholder="nombre@universidad.edu" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="tipo">Tipo de figura</label>
+            <select class="form-select" id="tipo" name="tipo">
+              <option value="">Selecciona...</option>
+              <option>Gráfica de datos</option>
+              <option>Diagrama</option>
+              <option>Figura conceptual</option>
+              <option>Paquete de figuras</option>
+              <option>No sé aún</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cantidad">N.º de figuras</label>
+            <input class="form-input" type="number" id="cantidad" name="cantidad" min="1" placeholder="Ej. 3" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Urgencia</label>
+          <div class="radio-group">
+            <input class="radio-opt" type="radio" name="urgencia" id="u1" value="Normal" checked />
+            <label class="radio-label" for="u1">Normal</label>
+            <input class="radio-opt" type="radio" name="urgencia" id="u2" value="Urgente" />
+            <label class="radio-label" for="u2">Urgente</label>
+            <input class="radio-opt" type="radio" name="urgencia" id="u3" value="Inmediata" />
+            <label class="radio-label" for="u3">Inmediata</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="destino">Destino</label>
+          <select class="form-select" id="destino" name="destino">
+            <option value="">Selecciona...</option>
+            <option>Artículo científico</option>
+            <option>Tesis / Disertación</option>
+            <option>Presentación / Congreso</option>
+            <option>Propuesta de investigación</option>
+            <option>Divulgación científica</option>
+            <option>Otro</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="descripcion">Descripción del proyecto</label>
+          <textarea class="form-textarea" id="descripcion" name="descripcion"
+            placeholder="Área de investigación, qué necesitas visualizar, revista objetivo, estilo de referencia, etc." required></textarea>
+        </div>
+
+        <div>
+          <button type="submit" class="form-btn">Enviar solicitud →</button>
+          <p class="form-note">Sin compromiso · Respuesta en &lt; 24 h hábiles</p>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROCESO -->
+<section id="proceso" style="background:var(--off)">
+  <div class="section-header fade-in">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Proceso de trabajo</h2>
+    <div class="section-rule"></div>
+  </div>
+  <div class="steps-grid fade-in">
+    <div class="step">
+      <div class="step-dot"></div>
+      <p class="step-num">Paso 01</p>
+      <h4 class="step-name">Solicitud</h4>
+      <p class="step-desc">Llenas el formulario con los detalles de tu proyecto: tipo de figura, contexto de investigación y urgencia.</p>
+    </div>
+    <div class="step">
+      <div class="step-dot"></div>
+      <p class="step-num">Paso 02</p>
+      <h4 class="step-name">Cotización</h4>
+      <p class="step-desc">Recibes un presupuesto personalizado en menos de 24 horas. Sin compromiso hasta tu aprobación.</p>
+    </div>
+    <div class="step">
+      <div class="step-dot"></div>
+      <p class="step-num">Paso 03</p>
+      <h4 class="step-name">Diseño y revisión</h4>
+      <p class="step-desc">Desarrollo la figura con hasta 2 rondas de retroalimentación para comunicar exactamente lo que necesitas.</p>
+    </div>
+    <div class="step">
+      <div class="step-dot"></div>
+      <p class="step-num">Paso 04</p>
+      <h4 class="step-name">Entrega final</h4>
+      <p class="step-desc">Recibes los archivos en alta resolución, listos para someter a publicación, tesis o presentación.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-logo">Figura Prima<span>.</span></p>
+  <p class="footer-copy">© 2025 · Visualización científica · Todos los derechos reservados</p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <button id="lb-close" onclick="closeLightbox()">✕</button>
+  <img id="lb-img" src="" alt="Figura ampliada" />
+</div>
+
+<script>
+  /* ── HAMBURGER ── */
+  const hamburger   = document.getElementById('hamburger');
+  const mobileMenu  = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+  });
+  function closeMobile() {
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+  }
+
+  /* ── CAROUSEL ── */
+  const track  = document.getElementById('carouselTrack');
+  const slides = track.querySelectorAll('.carousel-slide');
+  const dotsEl = document.getElementById('carouselDots');
+  const btnP   = document.getElementById('cPrev');
+  const btnN   = document.getElementById('cNext');
+  let cur = 0, timer;
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    cur = (n + slides.length) % slides.length;
+    track.style.transform = `translateX(-${cur * 100}%)`;
+    dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+    clearInterval(timer);
+    timer = setInterval(() => goTo(cur + 1), 4500);
+  }
+  btnP.addEventListener('click', () => goTo(cur - 1));
+  btnN.addEventListener('click', () => goTo(cur + 1));
+  timer = setInterval(() => goTo(cur + 1), 4500);
+
+  /* Swipe */
+  let tx = 0;
+  track.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 40) goTo(dx < 0 ? cur + 1 : cur - 1);
+  });
+
+  /* ── SCROLL FADE ── */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 80);
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+  /* ── LIGHTBOX ── */
+  function openLightbox(card) {
+    const img = card.querySelector('img');
+    if (!img) return;
+    document.getElementById('lb-img').src = img.src;
+    document.getElementById('lightbox').classList.add('open');
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+  }
+  document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this) closeLightbox();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+</body>
+</html>
